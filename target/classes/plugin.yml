@@ -1,0 +1,10 @@
+name: ModelEngineEmotes
+version: '1.0-SNAPSHOT'
+main: me.zimzaza4.modelengineemotes.ModelEngineEmotes
+api-version: '1.16'
+depend:
+  - ModelEngine
+  - floodgate
+commands:
+  megemote:
+    aliases: emote
