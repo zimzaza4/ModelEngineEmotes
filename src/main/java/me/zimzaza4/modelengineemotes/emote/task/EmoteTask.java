@@ -42,15 +42,12 @@ public class EmoteTask {
 
         IEntityData data = modeledEntity.getBase().getData();
         modeledEntity.setBaseEntityVisible(true);
+
+        ActiveModel model = ModelEngineAPI.createActiveModel(emote.getModel());
         if (data instanceof BukkitEntityData bukkitEntityData) {
             bukkitEntityData.getTracked().addForcedPairing(player);
-
-            ActiveModel activeModel = ModelEngineAPI.createActiveModel(emote.getModel());
-            modeledEntity.addModel(activeModel, true);
-
-            ModelEngineAPI.getEntityHandler().setForcedInvisible(player, true);
-            modeledEntity.addModel(activeModel, false).ifPresent(ActiveModel::destroy);
-            activeModel.getBones().values().forEach((modelBone) -> {
+            modeledEntity.addModel(model, false);
+            model.getBones().values().forEach((modelBone) -> {
                 modelBone.getBoneBehavior(BoneBehaviorTypes.PLAYER_LIMB).ifPresent((playerLimb) -> {
                     playerLimb.setTexture(player);
                 });
@@ -62,17 +59,14 @@ public class EmoteTask {
                 if (bedrock) {
                     bukkitEntityData.getTracked().addForcedHidden(v);
                 } else {
-                    v.hidePlayer(ModelEngineEmotes.INSTANCE, player);
+                    // v.hidePlayer(ModelEngineEmotes.INSTANCE, player);
+                    // TODO: Packet Hide
+
                 }
             }
         }
 
-        if (!FloodgateApi.getInstance().isFloodgatePlayer(player.getUniqueId())) {
-            ModelEngineAPI.getNMSHandler().getEntityHandler().setForcedInvisible(player, true);
-        }
-        ActiveModel model = ModelEngineAPI.createActiveModel(emote.getModel());
-        modeledEntity.addModel(model,false);
-        modeledEntity.setBaseEntityVisible(false);
+        ModelEngineAPI.getNMSHandler().getEntityHandler().setForcedInvisible(player, !FloodgateApi.getInstance().isFloodgatePlayer(player.getUniqueId()));
         BlueprintAnimation anim = model.getBlueprint().getAnimations().get(emote.getAnimation());
 
         model.getBones().values().forEach(modelBone -> {
@@ -90,6 +84,9 @@ public class EmoteTask {
                 boolean moved = (player.getWorld() != location.getWorld()) || location.distance(player.getLocation()) > 0.2;
                 if (player.isDead() || !player.isOnline() || (emote.stopWhenMove && moved)) {
                     this.cancel();
+                }
+                if (FloodgateApi.getInstance().isFloodgatePlayer(player.getUniqueId())) {
+                    ModelEngineAPI.getNMSHandler().getEntityHandler().setForcedInvisible(player, false);
                 }
             }
 
