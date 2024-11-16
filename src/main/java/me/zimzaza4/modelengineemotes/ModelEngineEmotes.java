@@ -20,8 +20,8 @@ public final class ModelEngineEmotes extends JavaPlugin {
     public void onEnable() {
         INSTANCE = this;
         emoteManager = new EmoteManager(new File(INSTANCE.getDataFolder(), "emotes"));
+        saveDefaultConfig();
         emoteManager.reloadConfigFolder();
-        saveConfig();
         EmoteCommand command = new EmoteCommand();
         Bukkit.getPluginCommand("megemote").setExecutor(command);
         Bukkit.getPluginCommand("megemote").setTabCompleter(command);
