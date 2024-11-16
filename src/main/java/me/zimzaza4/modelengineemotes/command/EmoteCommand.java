@@ -17,9 +17,9 @@ public class EmoteCommand implements TabExecutor {
         }
         if (args[0].equalsIgnoreCase("reload")) {
             if (commandSender.hasPermission("emote.admin.reload")) {
-                commandSender.sendMessage("Reloading...");
+                commandSender.sendMessage(ModelEngineEmotes.message("reloading"));
                 ModelEngineEmotes.getEmoteManager().reloadConfigFolder();
-                commandSender.sendMessage("Reloaded");
+                commandSender.sendMessage(ModelEngineEmotes.message("reloaded"));
             }
             return true;
         }
@@ -27,11 +27,12 @@ public class EmoteCommand implements TabExecutor {
             Emote emote = ModelEngineEmotes.getEmoteManager().getEmote(args[0]);
             if (emote != null) {
                 if (emote.requirePermission && !player.hasPermission("emote.use." + emote.id)) {
-                    player.sendMessage("");
+                    player.sendMessage(ModelEngineEmotes.message("no-permission"));
                     return false;
                 }
-                player.sendMessage(emote.toString());
                 ModelEngineEmotes.getEmoteManager().playEmote(player, emote);
+            } else {
+                player.sendMessage(ModelEngineEmotes.message("emote-not-exist"));
             }
         }
 

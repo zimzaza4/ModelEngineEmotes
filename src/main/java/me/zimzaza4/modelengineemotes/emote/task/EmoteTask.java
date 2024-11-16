@@ -1,5 +1,6 @@
 package me.zimzaza4.modelengineemotes.emote.task;
 
+import com.google.gson.JsonObject;
 import com.ticxo.modelengine.api.ModelEngineAPI;
 import com.ticxo.modelengine.api.animation.BlueprintAnimation;
 import com.ticxo.modelengine.api.entity.data.BukkitEntityData;
@@ -58,15 +59,15 @@ public class EmoteTask {
                 boolean bedrock = FloodgateApi.getInstance().isFloodgatePlayer(v.getUniqueId());
                 if (bedrock) {
                     bukkitEntityData.getTracked().addForcedHidden(v);
-                } else {
-                    // v.hidePlayer(ModelEngineEmotes.INSTANCE, player);
-                    // TODO: Packet Hide
-
+                } else if (v != player) {
+                    ModelEngineAPI.getEntityHandler().forceDespawn(modeledEntity.getBase(), v);
                 }
             }
         }
 
-        ModelEngineAPI.getNMSHandler().getEntityHandler().setForcedInvisible(player, !FloodgateApi.getInstance().isFloodgatePlayer(player.getUniqueId()));
+        if (!FloodgateApi.getInstance().isFloodgatePlayer(player.getUniqueId())) {
+            ModelEngineAPI.getNMSHandler().getEntityHandler().setForcedInvisible(player, true);
+        }
         BlueprintAnimation anim = model.getBlueprint().getAnimations().get(emote.getAnimation());
 
         model.getBones().values().forEach(modelBone -> {
@@ -85,21 +86,22 @@ public class EmoteTask {
                 if (player.isDead() || !player.isOnline() || (emote.stopWhenMove && moved)) {
                     this.cancel();
                 }
-                if (FloodgateApi.getInstance().isFloodgatePlayer(player.getUniqueId())) {
-                    ModelEngineAPI.getNMSHandler().getEntityHandler().setForcedInvisible(player, false);
-                }
             }
 
             @Override
             public synchronized void cancel() {
                 super.cancel();
                 for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                    onlinePlayer.showPlayer(ModelEngineEmotes.INSTANCE, player);
+                    if (onlinePlayer != player && !FloodgateApi.getInstance().isFloodgatePlayer(onlinePlayer.getUniqueId())) {
+                        ModelEngineAPI.getEntityHandler().forceSpawn(modeledEntity.getBase(), onlinePlayer);
+                    }
                 }
                 ModelEngineEmotes.getEmoteManager().getPlayingEmotes().remove(player);
                 BedrockUtils.playStopAnimation(player);
                 ModelEngineAPI.getNMSHandler().getEntityHandler().setForcedInvisible(player, false);
-                model.destroy();
+                try {
+                    model.destroy();
+                } catch (Throwable t) {}
             }
         };
         task.runTaskTimer(ModelEngineEmotes.INSTANCE, 0, 2);

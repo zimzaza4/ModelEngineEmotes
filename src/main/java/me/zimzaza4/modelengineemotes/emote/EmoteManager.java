@@ -1,6 +1,7 @@
 package me.zimzaza4.modelengineemotes.emote;
 
 import lombok.Getter;
+import me.zimzaza4.modelengineemotes.ModelEngineEmotes;
 import me.zimzaza4.modelengineemotes.config.EmoteConfig;
 import me.zimzaza4.modelengineemotes.emote.task.EmoteTask;
 import org.bukkit.entity.Player;
@@ -50,6 +51,7 @@ public class EmoteManager {
     }
 
     public void reloadConfigFolder() {
+        ModelEngineEmotes.INSTANCE.reloadConfig();
         registeredEmotes.clear();
         try {
             configFolder.mkdirs();

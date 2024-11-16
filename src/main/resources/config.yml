@@ -1,0 +1,5 @@
+messages:
+  no-permission: "&aYou don't have permission to use the command."
+  emote-not-exist: "&cEmote doesn't exist."
+  reloading: "&eReloading..."
+  reloaded: "&aReloaded."
